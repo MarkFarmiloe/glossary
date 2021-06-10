@@ -15,7 +15,7 @@ class Database {
             connectionLimit: 5,
             host: hostname,
             user: 'root',
-            password: 'ngo.set', 
+            password: '', 
             database: 'glossary'
         });
     }
