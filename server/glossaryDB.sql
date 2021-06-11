@@ -79,14 +79,15 @@ DROP TABLE IF EXISTS `term_resources`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `term_resources` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-  `termid` bigint unsigned DEFAULT NULL,
-  `link` text,
-  `linktype` enum('video','web') DEFAULT NULL,
+  `termid` bigint unsigned NOT NULL,
+  `link` text NOT NULL,
+  `linktype` enum('video','web') NOT NULL,
+  `language` varchar(255) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `id` (`id`),
   KEY `termid` (`termid`),
   CONSTRAINT `term_resources_ibfk_1` FOREIGN KEY (`termid`) REFERENCES `terms` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -95,6 +96,7 @@ CREATE TABLE `term_resources` (
 
 LOCK TABLES `term_resources` WRITE;
 /*!40000 ALTER TABLE `term_resources` DISABLE KEYS */;
+INSERT INTO `term_resources` VALUES (1,17,'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference','web','javascript'),(4,17,'https://www.w3schools.com/js/js_booleans.asp','web','javascript'),(5,18,'https://www.w3schools.com/js/js_variables.asp','web','javascript');
 /*!40000 ALTER TABLE `term_resources` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -109,14 +111,14 @@ CREATE TABLE `terms` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
   `term` varchar(30) NOT NULL,
   `definition` text NOT NULL,
-  `programming_language` varchar(20) DEFAULT NULL,
   `contributor_id` bigint unsigned NOT NULL,
   `creation_date` datetime DEFAULT CURRENT_TIMESTAMP,
   `last_edit_date` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `id` (`id`),
+  KEY `fk_contributor` (`contributor_id`),
   CONSTRAINT `fk_contributor` FOREIGN KEY (`contributor_id`) REFERENCES `contributors` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -125,7 +127,7 @@ CREATE TABLE `terms` (
 
 LOCK TABLES `terms` WRITE;
 /*!40000 ALTER TABLE `terms` DISABLE KEYS */;
-INSERT INTO `terms` VALUES (4,'array','A collection of data values accessed by index.','JavaScript',4,'2021-06-10 16:15:46',NULL);
+INSERT INTO `terms` VALUES (17,'boolean','A type with two values, true or false used in boolean expressions.',4,'2021-06-11 18:26:47','2021-06-11 20:18:09'),(18,'variable','A way to store a single value',4,'2021-06-11 19:30:51',NULL);
 /*!40000 ALTER TABLE `terms` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -138,4 +140,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-06-10 16:25:56
+-- Dump completed on 2021-06-11 20:20:35
