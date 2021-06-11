@@ -7,6 +7,7 @@ const saltRounds = 10;
 // get config vars
 dotenv.config();
 
+// secret generated with require('crypto').randomBytes(64).toString('hex')
 const token_secret = process.env.TOKEN_SECRET
 
 const app = express();

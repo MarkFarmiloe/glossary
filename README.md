@@ -25,6 +25,27 @@ The client should return an `Authorization` header containing the token for all 
 Authorization: Bearer "eyJhbGciOiJIUz.."
 ```
 
+See [https://www.digitalocean.com/community/tutorials/nodejs-jwt-expressjs](https://www.digitalocean.com/community/tutorials/nodejs-jwt-expressjs) for a tutorial on this kind of authentication.
+
+### Environment configuration
+
+The `.env` file for the API server should look like this:
+```
+TOKEN_SECRET=
+DB_HOST=localhost
+DB_USER=user
+DB_PORT=3306
+DB_PASSWORD=password
+DB_NAME= glossary
+WEB_PORT=3000
+```
+
+The `TOKEN_SECRET` is generated with
+```
+require('crypto').randomBytes(64).toString('hex')
+```
+Adjust the other environment variables according to your system.
+
 ### API
 
 1. `GET /terms` will return all terms as a JSON list
