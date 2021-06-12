@@ -2,10 +2,19 @@ const express = require("express");
 const jwt = require('jsonwebtoken');
 const dotenv = require('dotenv');
 const bcrypt = require('bcrypt');
+const cors = require('cors')
+
 const saltRounds = 10;
+const DBG=1;
 
 // get config vars
 dotenv.config();
+
+function debug(message) {
+    if (DBG) {
+        console.log(message);
+    }
+}
 
 // secret generated with require('crypto').randomBytes(64).toString('hex')
 const token_secret = process.env.TOKEN_SECRET
@@ -18,6 +27,7 @@ if (process.env.USE_AUTH === 'false') {
 
 const app = express();
 app.use(express.json());
+app.use(cors({origin: 'http://localhost:3000'}));
 
 const mysql = require('mysql');
 // web server port
@@ -123,7 +133,7 @@ app.post("/terms/update", authenticateToken, function (req, res) {
     database
         .query(query, [term, def, contrib, termid])
         .then((result) => {
-            //console.log(result);
+            debug(result);
             if (result.changedRows === 0) {
                 res.json({message: "Error.  Term not updated"})
             } else {
@@ -145,7 +155,7 @@ app.post("/terms/delete", authenticateToken, function (req, res) {
     database
         .query(query, [termid])
         .then((result) => {
-            //console.log(result);
+            debug(result);
             if (result.affectedRows === 0) {
                 res.json({message: "Error.  Term not deleted"})
             } else {
@@ -227,11 +237,11 @@ app.get("/terms", function (req, res) {
     database
         .query(query)
         .then((result) => {
-            //console.log(result);
+            debug(result);
             if (result.length === 0) {
                 res.json([]);
             } else {
-                // console.log(result);
+                debug(result);
                 res.json(result)
             }
         })
@@ -247,11 +257,11 @@ app.get("/term/resources", function (req, res) {
     database
         .query(query,[termid])
         .then((result) => {
-            //console.log(result);
+            debug(result);
             if (result.length === 0) {
                 res.json([]);
             } else {
-                // console.log(result);
+                debug(result);
                 res.json(result)
             }
         })
@@ -267,7 +277,7 @@ app.get("/contributors", authenticateToken, function (req, res) {
             if (result.length === 0) {
                 res.json({message: "no terms available"});
             } else {
-                //console.log(result);
+                debug(result);
                 res.json(result)
             }
         })
@@ -287,7 +297,7 @@ app.post("/contributor/login", async function (req, res) {
         .query(query, [email])
         .then((result) => {
             // await bcrypt.compare(password, hash);
-            //console.log(result);
+            debug(result);
             if (result.length === 0) {
                 res.json({message: "Incorrect Email"});
             } else {
