@@ -304,6 +304,7 @@ app.post("/contributor/login", async function (req, res) {
                 (async () => {
                     // Hash fetched from DB
                     const hash = result[0].password;
+                    const userId = result[0].id;
 
                     // Check if password is correct
                     const isValidPass = await bcrypt.compare(req.body.password, hash);
