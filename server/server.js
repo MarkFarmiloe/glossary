@@ -24,23 +24,9 @@ if (process.env.USE_AUTH === 'false') {
     console.log("Authentication is turned off");
 }
 
-
 const app = express();
 app.use(express.json());
 app.use(cors({origin: 'http://localhost:3000'}));
-
-const mysql = require('mysql');
-// web server port
-const port = process.env.WEB_PORT;
-// db config
-const config = {
-    'connectionLimit': 5,
-    'host': process.env.DB_HOST,
-    'port': process.env.DB_PORT,
-    'user': process.env.DB_USER,
-    'database': process.env.DB_NAME,
-    'password': process.env.DB_PASSWORD,
-};
 
 function generateAccessToken(username) {
     // token expires in 1 hour (3600 seconds)
@@ -72,9 +58,31 @@ function authenticateToken(req, res, next) {
     }
 }
 
+const { Pool } = require('pg')
+
+let config;
+if (process.env.DATABASE_URL) { //it's set in Heroku
+  const connectionString = process.env.DATABASE_URL
+  config = {
+    connectionString: connectionString,
+    sslmode: require,
+    ssl: {
+      rejectUnauthorized: false
+    }
+  }
+} else { //default local config
+  config = {
+    user: process.env.DB_USER,
+    host: process.env.DB_HOST,
+    database: process.env.DB_NAME,
+    password: process.env.DB_PASSWORD,
+    port: process.env.DB_PORT
+  }
+}
+
 class Database {
     constructor( config ) {
-        this.connection = mysql.createPool(config);
+        this.connection = new Pool(config);
     }
 
     query( sql, args ) {
@@ -351,5 +359,3 @@ app.post("/newContributor", authenticateToken, async function (req, res) {
 app.get("/", function (req, res) {
   res.send("Glossary Server v1.0");
 });
-
-
