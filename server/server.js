@@ -9,6 +9,12 @@ dotenv.config();
 
 // secret generated with require('crypto').randomBytes(64).toString('hex')
 const token_secret = process.env.TOKEN_SECRET
+let USE_AUTH = 1;
+if (process.env.USE_AUTH === 'false') {
+    USE_AUTH = 0;
+    console.log("Authentication is turned off");
+}
+
 
 const app = express();
 app.use(express.json());
@@ -32,24 +38,28 @@ function generateAccessToken(username) {
 }
 
 function authenticateToken(req, res, next) {
-    const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1];
-
-    console.log(`auth token=${token}`);
-
-    if (token == null) {
-        return res.sendStatus(401);
+    if (USE_AUTH) {
+        const authHeader = req.headers['authorization'];
+        const token = authHeader && authHeader.split(' ')[1];
+        
+        console.log(`auth token=${token}`);
+        
+        if (token == null) {
+            return res.sendStatus(401);
+        }
+        
+        jwt.verify(token, process.env.TOKEN_SECRET, (err, user) => {
+            console.log(err)
+            
+            if (err) return res.sendStatus(403)
+            
+            req.user = user
+            
+            next()
+        })
+    } else {
+        next();
     }
-    
-    jwt.verify(token, process.env.TOKEN_SECRET, (err, user) => {
-    console.log(err)
-
-    if (err) return res.sendStatus(403)
-
-    req.user = user
-
-    next()
-    })
 }
 
 class Database {
@@ -135,7 +145,7 @@ app.post("/terms/delete", authenticateToken, function (req, res) {
     database
         .query(query, [termid])
         .then((result) => {
-            console.log(result);
+            //console.log(result);
             if (result.affectedRows === 0) {
                 res.json({message: "Error.  Term not deleted"})
             } else {
@@ -217,7 +227,7 @@ app.get("/terms", function (req, res) {
     database
         .query(query)
         .then((result) => {
-            console.log(result);
+            //console.log(result);
             if (result.length === 0) {
                 res.json([]);
             } else {
@@ -237,7 +247,7 @@ app.get("/term/resources", function (req, res) {
     database
         .query(query,[termid])
         .then((result) => {
-            console.log(result);
+            //console.log(result);
             if (result.length === 0) {
                 res.json([]);
             } else {
@@ -290,7 +300,7 @@ app.post("/contributor/login", async function (req, res) {
 
                     if (isValidPass) {
                         const token = generateAccessToken({ username: req.body.email });
-                        res.json({auth:token});
+                        res.json({auth:token, userid:userId});
                     } else {
                         res.json({message: "Incorrect Password"});
                     }

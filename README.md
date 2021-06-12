@@ -14,10 +14,11 @@ Term resources are associated with a specific term.  They need the `id` of the t
 
 ### Authentication
 
-The API uses JSON Web Tokens for authentication.  The `/contributor/login` function will return a token which is valid for one hour.
+The API uses JSON Web Tokens for authentication.  The `/contributor/login` function will return a token which is valid for one hour, and a user ID.
 ```
 {
-    "auth": "eyJhbGciOiJIUz.."
+    "auth": "eyJhbGciOiJIUz..",
+    "userid":userid
 }
 ```
 The client should return an `Authorization` header containing the token for all operations that add/edit/delete terms or their resources.  The header should look like this:
@@ -38,12 +39,14 @@ DB_PORT=3306
 DB_PASSWORD=password
 DB_NAME= glossary
 WEB_PORT=3000
+USE_AUTH=true
 ```
 
 The `TOKEN_SECRET` is generated with
 ```
 require('crypto').randomBytes(64).toString('hex')
 ```
+The `USE_AUTH` variable should be set to either `true` or `false`.  If you set it to `false`, the API will **not** use any authentication.
 Adjust the other environment variables according to your system.
 
 ### API
