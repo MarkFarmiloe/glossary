@@ -2,7 +2,7 @@
 
 ## Glossary Project Back End
 
-This project uses a MySQL database.  See the `server/glossaryDB.sql` for a dump of the database.
+This project uses a Postgresql database.  See the `server/glossaryDB.sql` for a dump of the database.
 
 ### Terms
 
@@ -23,7 +23,7 @@ The API uses JSON Web Tokens for authentication.  The `/contributor/login` funct
 ```
 The client should return an `Authorization` header containing the token for all operations that add/edit/delete terms or their resources.  The header should look like this:
 ```
-Authorization: Bearer "eyJhbGciOiJIUz.."
+Authorization: Bearer eyJhbGciOiJIUz..
 ```
 
 See [https://www.digitalocean.com/community/tutorials/nodejs-jwt-expressjs](https://www.digitalocean.com/community/tutorials/nodejs-jwt-expressjs) for a tutorial on this kind of authentication.

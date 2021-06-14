@@ -28,6 +28,9 @@ const app = express();
 app.use(express.json());
 app.use(cors({origin: 'http://localhost:3000'}));
 
+// web server port
+const port = process.env.WEB_PORT;
+
 function generateAccessToken(username) {
     // token expires in 1 hour (3600 seconds)
     return jwt.sign(username, process.env.TOKEN_SECRET, { expiresIn: '3600s' });
@@ -118,11 +121,11 @@ app.post("/terms/add", authenticateToken, function (req, res) {
     const contrib = req.body.contributorId;
 
     const query =
-          "INSERT INTO terms (id, term, definition, contributor_id) VALUES (default, ?, ?, ?)";
+        "INSERT INTO terms (term, definition, contributor_id) VALUES ($1, $2, $3) RETURNING id";
     
     database
         .query(query, [term, def, contrib])
-        .then((result) => res.json({message: "Term added", id: result.insertId}))
+        .then((result) => res.json({message: "Term added", id: result.rows[0].id}))
         .catch((e) => {
             console.error(e)
             res.json({error: e});
@@ -136,13 +139,13 @@ app.post("/terms/update", authenticateToken, function (req, res) {
     const contrib = req.body.contributorId;
 
     const query =
-          "UPDATE terms set term=?, definition=?, contributor_id=? WHERE id=?";
+          "UPDATE terms set term=$1, definition=$2, contributor_id=$3 WHERE id=$4";
     
     database
         .query(query, [term, def, contrib, termid])
         .then((result) => {
             debug(result);
-            if (result.changedRows === 0) {
+            if (result.rowCount === 0) {
                 res.json({message: "Error.  Term not updated"})
             } else {
                 res.json({message: "Term updated"})
@@ -158,13 +161,13 @@ app.post("/terms/delete", authenticateToken, function (req, res) {
     const termid = req.body.termid;
 
     const query =
-          "DELETE from terms WHERE id=?";
+          "DELETE from terms WHERE id = $1";
     
     database
         .query(query, [termid])
         .then((result) => {
             debug(result);
-            if (result.affectedRows === 0) {
+            if (result.rowCount === 0) {
                 res.json({message: "Error.  Term not deleted"})
             } else {
                 res.json({message: "Term deleted"})
@@ -183,11 +186,11 @@ app.post("/terms/resources/add", authenticateToken, function (req, res) {
     const language = req.body.language;
 
     const query =
-          "INSERT INTO term_resources (id, termid, link, linktype, language) VALUES (default, ?, ?, ?, ?)";
+          "INSERT INTO term_resources (termid, link, linktype, language) VALUES ($1,$2,$3,$4) RETURNING id";
     
     database
         .query(query, [termid, link, linktype, language])
-        .then((result) => res.json({message: "Term resource added"}))
+        .then((result) => res.json({message: "Term resource added", id: result.rows[0].id}))
         .catch((e) => {
             console.error(e)
             res.json({error: e});
@@ -202,12 +205,12 @@ app.post("/terms/resources/update", authenticateToken, function (req, res) {
     const language = req.body.language;
 
     const query =
-          "UPDATE term_resources set termid=?, link=?, linktype=?, language=? where id=?";
+          "UPDATE term_resources set termid=$1, link=$2, linktype=$3, language=$4 where id=$5";
     
     database
         .query(query, [termid, link, linktype, language, res_id])
         .then((result) => {
-            if (result.changedRows === 0) {
+            if (result.rowCount === 0) {
                 res.json({message: "Error.  Term resource not updated"})
             } else {
                 res.json({message: "Term resource updated"})
@@ -223,12 +226,12 @@ app.post("/terms/resources/delete", authenticateToken, function (req, res) {
     const res_id = req.body.resourceid;
 
     const query =
-          "DELETE from term_resources where id=?";
+          "DELETE from term_resources where id = $1";
     
     database
         .query(query, [res_id])
         .then((result) => {
-            if (result.affectedRows === 0) {
+            if (result.rowCount === 0) {
                 res.json({message: "Error.  Term resource not deleted"})
             } else {
                 res.json({message: "Term resource deleted"})
@@ -241,16 +244,16 @@ app.post("/terms/resources/delete", authenticateToken, function (req, res) {
 });
 
 app.get("/terms", function (req, res) {
-    const query = "SELECT terms.id, terms.term, terms.definition FROM terms";
+    const query = "SELECT id, term, definition FROM terms";
     database
         .query(query)
         .then((result) => {
             debug(result);
-            if (result.length === 0) {
+            if (result.rowCount === 0) {
                 res.json([]);
             } else {
                 debug(result);
-                res.json(result)
+                res.json(result.rows);
             }
         })
         .catch((e) => {
@@ -261,16 +264,17 @@ app.get("/terms", function (req, res) {
 
 app.get("/term/resources", function (req, res) {
     const termid = req.body.termid;
-    const query = "SELECT id, link, linktype, language FROM term_resources where termid=?";
+    const query = "SELECT id, link, linktype, language FROM term_resources where termid = $1";
     database
         .query(query,[termid])
+        // .query(query)
         .then((result) => {
             debug(result);
-            if (result.length === 0) {
+            if (result.rowCount === 0) {
                 res.json([]);
             } else {
                 debug(result);
-                res.json(result)
+                res.json(result.rows);
             }
         })
         .catch((e) => {
@@ -282,11 +286,11 @@ app.get("/term/resources", function (req, res) {
 app.get("/contributors", authenticateToken, function (req, res) {
     database.query("SELECT id, contributor_name, email, region FROM contributors")
         .then((result) => {
-            if (result.length === 0) {
-                res.json({message: "no terms available"});
+            if (result.rowCount === 0) {
+                res.json({message: "no contributors !!!"});
             } else {
                 debug(result);
-                res.json(result)
+                res.json(result.rows);
             }
         })
         .catch((e) => {
@@ -299,20 +303,20 @@ app.post("/contributor/login", async function (req, res) {
     const email = req.body.email;
     
     const query =
-          "SELECT id, password from contributors where email = ?";
+          "SELECT id, password from contributors where email = $1";
 
     database
         .query(query, [email])
         .then((result) => {
             // await bcrypt.compare(password, hash);
             debug(result);
-            if (result.length === 0) {
+            if (result.rowCount === 0) {
                 res.json({message: "Incorrect Email"});
             } else {
                 (async () => {
                     // Hash fetched from DB
-                    const hash = result[0].password;
-                    const userId = result[0].id;
+                    const hash = result.rows[0].password;
+                    const userId = result.rows[0].id;
 
                     // Check if password is correct
                     const isValidPass = await bcrypt.compare(req.body.password, hash);
@@ -339,21 +343,19 @@ app.post("/newContributor", authenticateToken, async function (req, res) {
     const region = req.body.region;
     const pass = await bcrypt.hash(req.body.password, saltRounds)
 
-    //console.log(`password is ${pass}`);
+    console.log(`password is ${pass}`);
 
     const query =
-          "INSERT INTO contributors (id, contributor_name, region, email, password) VALUES (default, ?, ?, ?, ?)";
+          "INSERT INTO contributors (contributor_name, region, email, password) VALUES ($1,$2,$3,$4) RETURNING id";
     
     database
         .query(query, [name, region, email, pass])
-        .then(() => res.json({message: "Contributor added"}))
+        .then((result) => res.json({message: "Contributor added", id: result.rows[0].id}))
         .catch((e) => {
             console.error(e)
             res.json({error: e});
         });
 });
-
-
 
 // req is the Request object, res is the Response object
 // (these are just variable names, they can be anything but it's a convention to call them req and res)

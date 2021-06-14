@@ -2,26 +2,31 @@
 -- Table structure for table admins
 --
 
+DROP TABLE IF EXISTS term_resources;
+DROP TABLE IF EXISTS terms;
+DROP TABLE IF EXISTS contributors;
 DROP TABLE IF EXISTS admins;
+DROP TYPE IF EXISTS link_t;
+
+
 CREATE TABLE admins (
   id SERIAL PRIMARY KEY,
   admin_name varchar(100) NOT NULL,
-  email varchar(100) DEFAULT NULL,
-  admin_password varchar(30) DEFAULT NULL
+  email varchar(100),
+  admin_password varchar(30)
 );
 
-INSERT INTO admins VALUES (1,'Tony','tony@example.com','t0nyp455');
+INSERT INTO admins (admin_name, email, admin_password) VALUES ('Tony','tony@example.com','t0nyp455');
 
 --
 -- Table structure for table contributors
 --
 
-DROP TABLE IF EXISTS contributors;
 CREATE TABLE contributors (
   id SERIAL PRIMARY KEY,
   contributor_name varchar(120) NOT NULL,
   region varchar(20) NOT NULL,
-  email varchar(30) DEFAULT NULL,
+  email varchar(30),
   password text NOT NULL
 );
 
@@ -29,16 +34,16 @@ CREATE TABLE contributors (
 -- Dumping data for table contributors
 --
 
-INSERT INTO contributors VALUES 
-  (4,'Tony','UK','tony@example.com','$2b$10$mRSPKDfDtW2K7IuejHn1POeyYcjh/.uE.YmA7tvaRlTVT0y5l9pl6'),
-  (5,'John','UK','john@example.com','$2b$10$hNnbCyg92ITxvvkNTeeVeerTEGB..F7/f9sESLhacqGE7p4gYdrDW'),
-  (7,'Pete','UK','pete@example.com','$2b$10$iZfO1bNAIgSt4NVsV8FP.OUyD0e.sbUQqPJ/vlIGCTfy1mtNgPoqy');
+INSERT INTO contributors (contributor_name, region, email, password) VALUES 
+  ('Tony','UK','tony@example.com','$2b$10$mRSPKDfDtW2K7IuejHn1POeyYcjh/.uE.YmA7tvaRlTVT0y5l9pl6'),
+  ('John','UK','john@example.com','$2b$10$hNnbCyg92ITxvvkNTeeVeerTEGB..F7/f9sESLhacqGE7p4gYdrDW'),
+  ('Pete','UK','pete@example.com','$2b$10$iZfO1bNAIgSt4NVsV8FP.OUyD0e.sbUQqPJ/vlIGCTfy1mtNgPoqy'),
+  ('Mark','West Midlands','mark@example.com','$2b$10$BiMDLIUU0iPqtFP.GFj8TeHMIa2P/EgXHWZgXl/kR3UNnL.23oEtK');
 
 --
 -- Table structure for table terms
 --
 
-DROP TABLE IF EXISTS terms;
 CREATE TABLE terms (
   id SERIAL PRIMARY KEY,
   term varchar(30) NOT NULL,
@@ -72,11 +77,11 @@ EXECUTE PROCEDURE trigger_set_timestamp();
 -- Dumping data for table terms
 --
 
-INSERT INTO terms VALUES 
-  (17,'boolean','A type with two values, true or false used in boolean expressions.',4,'2021-06-11 18:26:47'),
-  (18,'variable','A way to store a single value',4,'2021-06-11 19:30:51');
+INSERT INTO terms (term, definition, contributor_id, creation_date) VALUES 
+  ('boolean','A type with two values, true or false used in boolean expressions.',1,'2021-06-11 18:26:47'),
+  ('variable','A way to store a single value',1,'2021-06-11 19:30:51');
 
-UPDATE terms SET contributor_id = 5 WHERE id = 17;
+UPDATE terms SET contributor_id = 1 WHERE id = 2;
 
 --
 -- Table structure for table term_resources
@@ -84,7 +89,6 @@ UPDATE terms SET contributor_id = 5 WHERE id = 17;
 
 CREATE TYPE link_t AS ENUM ('video', 'web');
 
-DROP TABLE IF EXISTS term_resources;
 CREATE TABLE term_resources (
   id SERIAL PRIMARY KEY,
   termid INT REFERENCES terms(id),
@@ -97,7 +101,7 @@ CREATE TABLE term_resources (
 -- Dumping data for table term_resources
 --
 
-INSERT INTO term_resources VALUES 
-  (1,17,'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference','web','javascript'),
-  (4,17,'https://www.w3schools.com/js/js_booleans.asp','web','javascript'),
-  (5,18,'https://www.w3schools.com/js/js_variables.asp','web','javascript');
+INSERT INTO term_resources (termid, link, linktype, language) VALUES 
+  (1,'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference','web','javascript'),
+  (1,'https://www.w3schools.com/js/js_booleans.asp','web','javascript'),
+  (2,'https://www.w3schools.com/js/js_variables.asp','web','javascript');
