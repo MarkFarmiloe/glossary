@@ -318,6 +318,7 @@ app.post("/contributor/login", async function (req, res) {
                     const isValidPass = await bcrypt.compare(req.body.password, hash);
 
                     if (isValidPass) {
+                        debug(`user with id ${userId} is authenticated`);
                         const token = generateAccessToken({ username: req.body.email });
                         res.json({auth:token, userid:userId});
                     } else {
