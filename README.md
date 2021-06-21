@@ -52,8 +52,8 @@ Adjust the other environment variables according to your system.
 ### API
 
 1. `GET /terms` will return all terms as a JSON list
-2. `POST /terms/add` will insert a new term.  Parameters are `term`, `definition`, `language` (programming language), `contributorId` (AUTH)
-3. `POST /terms/update` will update a term.  Parameters are `termid`, `term`, `definition`, `language` (programming language), `contributorId` (AUTH)
+2. `POST /terms/add` will insert a new term.  Parameters are `term`, `definition`, and `contributorId` (AUTH)
+3. `POST /terms/update` will update a term.  Parameters are `termid`, `term`, `definition`, `contributorId` (AUTH)
 4. `POST /terms/delete` will delete a term.  Parameters are `termid` (AUTH)
 5. `GET /term/resources` will return all resources associated with a term.  Parameters are `termid`
 6. `POST /terms/resources/add` will insert a new resource for a specific term.  Parameters are `termid`, `link`, `linktype` (`video` or `web`), `language` (AUTH)
