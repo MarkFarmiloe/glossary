@@ -55,13 +55,14 @@ Adjust the other environment variables according to your system.
 2. `POST /terms/add` will insert a new term.  Parameters are `term`, `definition`, and `contributorId` (AUTH)
 3. `POST /terms/update` will update a term.  Parameters are `termid`, `term`, `definition`, `contributorId` (AUTH)
 4. `POST /terms/delete` will delete a term.  Parameters are `termid` (AUTH)
-5. `GET /term/resources` will return all resources associated with a term.  Parameters are `termid`
-6. `POST /terms/resources/add` will insert a new resource for a specific term.  Parameters are `termid`, `link`, `linktype` (`video` or `web`), `language` (AUTH)
-7. `POST /terms/resources/update` will update a resource for a specific term.  Parameters are `resourceid`, `termid`, `link`, `linktype` (`video` or `web`), `language` (AUTH)
-8. `POST /terms/resources/delete` will delete a resource.  Parameters are `resourceid` (AUTH)
-9. `GET /contributors` will return a list of contributors (id, name and email) (AUTH)
-10. `POST /contributor/login` checks the email and password of a contributor.  Parameters are `email`, `password`.
-11. `POST /newContributor` adds a new contributor to the database.  Parameters are `name`, `email`, `region`, `password`. (AUTH)
+5. `POST /terms/term` will return a single term with a given ID.  Parameters are `termid`
+6. `GET /term/resources` will return all resources associated with a term.  Parameters are `termid`
+7. `POST /terms/resources/add` will insert a new resource for a specific term.  Parameters are `termid`, `link`, `linktype` (`video` or `web`), `language` (AUTH)
+8. `POST /terms/resources/update` will update a resource for a specific term.  Parameters are `resourceid`, `termid`, `link`, `linktype` (`video` or `web`), `language` (AUTH)
+9. `POST /terms/resources/delete` will delete a resource.  Parameters are `resourceid` (AUTH)
+10. `GET /contributors` will return a list of contributors (id, name and email) (AUTH)
+11. `POST /contributor/login` checks the email and password of a contributor.  Parameters are `email`, `password`.
+12. `POST /newContributor` adds a new contributor to the database.  Parameters are `name`, `email`, `region`, `password`. (AUTH)
 
 ### Database
 
